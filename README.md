@@ -15,7 +15,7 @@ Goals:
 
 ## Conceptual design
 
-![](./images/overview.svg)
+![Conceptual diagram](./images/overview.svg)
 
 This diagram shows the Kafka connector on the left hand side. It is responsible for querying the API Gateway for a list of functions. It will then build up a map or table of which functions have advertised an interested in which topics.
 
@@ -79,11 +79,11 @@ hello world
 ```
 Once you have connected, each new line will be a message published.
 
-If you have an error
+If you have an error such as the below, then wait a little longer and try again.
+
 ```
 error: unable to upgrade connection: container not found ("kafka")
 ```
-just wait and retry.
 
 You can verify the proper path of the publisher script by getting the shell of the running broker:
 ```
@@ -208,16 +208,18 @@ Rebalanced: &{Type:rebalance OK Claimed:map[faas-request:[0]] Released:map[] Cur
 
 ## Configuration
 
-This configuration can be set in the YAML files for Kubernetes or Swarm.
+Configure the software as required with these environment variables.
 
-| env_var               | description                                                 |
-| --------------------- |----------------------------------------------------------   |
-| `upstream_timeout`      | Go duration - maximum timeout for upstream function call    |
-| `rebuild_interval`      | Go duration - interval for rebuilding function to topic map |
-| `topics`                | Topics to which the connector will bind                     |
-| `gateway_url`           | The URL for the API gateway i.e. http://gateway:8080 or http://gateway.openfaas:8080 for Kubernetes       |
-| `broker_host`           | Default is `kafka:9092`. You can configure this with our own host with port |
-| `print_response`        | Default is `true` - this will output information about the response of calling a function in the logs, including the HTTP status, topic that triggered invocation, the function name, and the length of the response body in bytes |
-| `print_response_body`   | Default is `true` - this will print the body of the response of calling a function to stdout |
-| `topic_delimiter`   | Default is `,` - Specifies character upon which to split the `topic` annotation when subscribing a function to mulitple topics |
+> Note: the helm chart options are written differently and exist in the upstream chart (see above for a link).
 
+| Environment variable      | description                                                 |
+| ------------------------- |----------------------------------------------------------   |
+| `upstream_timeout`        | Go duration - maximum timeout for upstream function call    |
+| `asynchronous_invocation` | For long running or slow functions, offload to asychronous function invocations and carry on processing the stream |
+| `rebuild_interval`        | Go duration - interval for rebuilding function to topic map |
+| `topics`                  | Topics to which the connector will bind                     |
+| `gateway_url`             | The URL for the API gateway i.e. http://gateway:8080 or http://gateway.openfaas:8080 for Kubernetes       |
+| `broker_host`             | Default is `kafka:9092`. You can configure this with our own host with port |
+| `print_response`          | Default is `true` - this will output information about the response of calling a function in the logs, including the HTTP status, topic that triggered invocation, the function name, and the length of the response body in bytes |
+| `print_response_body`     | Default is `true` - this will print the body of the response of calling a function to stdout |
+| `topic_delimiter`         | Default is `,` - Specifies character upon which to split the `topic` annotation when subscribing a function to mulitple topics |
