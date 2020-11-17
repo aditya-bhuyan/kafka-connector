@@ -1,7 +1,7 @@
 ## Kafka-connector
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/openfaas-incubator/kafka-connector)](https://goreportcard.com/report/github.com/openfaas-incubator/kafka-connector) [![Build
-Status](https://travis-ci.org/openfaas-incubator/kafka-connector.svg?branch=master)](https://travis-ci.org/openfaas-incubator/kafka-connector) [![GoDoc](https://godoc.org/github.com/openfaas-incubator/kafka-connector?status.svg)](https://godoc.org/github.com/openfaas-incubator/kafka-connector) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Report Card](https://goreportcard.com/badge/github.com/openfaas/kafka-connector)](https://goreportcard.com/report/github.com/openfaas/kafka-connector) [![Build
+Status](https://travis-ci.org/openfaas/kafka-connector.svg?branch=master)](https://travis-ci.org/openfaas/kafka-connector) [![GoDoc](https://godoc.org/github.com/openfaas/kafka-connector?status.svg)](https://godoc.org/github.com/openfaas/kafka-connector) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
 
 The Kafka connector connects OpenFaaS functions to Kafka topics.

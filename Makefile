@@ -13,6 +13,3 @@ ci-armhf-push:
 
 push:
 	./push.sh $(TAG)
-
-
-

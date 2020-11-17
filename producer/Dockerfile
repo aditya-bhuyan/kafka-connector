@@ -1,7 +1,7 @@
 FROM golang:1.10 as build
 
-RUN mkdir -p /go/src/github.com/openfaas-incubator/kafka-connector/producer
-WORKDIR /go/src/github.com/openfaas-incubator/kafka-connector/producer
+RUN mkdir -p /go/src/github.com/openfaas/kafka-connector/producer
+WORKDIR /go/src/github.com/openfaas/kafka-connector/producer
 
 COPY vendor     vendor
 COPY main.go    main.go

@@ -1,23 +1,55 @@
-FROM golang:1.10 as build
+FROM teamserverless/license-check:0.3.9 as license-check
 
-RUN mkdir -p /go/src/github.com/openfaas-incubator/kafka-connector
-WORKDIR /go/src/github.com/openfaas-incubator/kafka-connector
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.13 as build
 
-COPY vendor     vendor
-COPY main.go    .
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
-# Run a gofmt and exclude all vendored code.
-RUN test -z "$(gofmt -l $(find . -type f -name '*.go' -not -path "./vendor/*"))"
+ENV CGO_ENABLED=0
+ENV GO111MODULE=on
+ENV GOFLAGS=-mod=vendor
 
-RUN go test -v ./...
+COPY --from=license-check /license-check /usr/bin/
 
-# Stripping via -ldflags "-s -w" 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags "-s -w" -installsuffix cgo -o /usr/bin/producer
+WORKDIR /go/src/github.com/openfaas/kafka-connector
+COPY . .
 
-FROM alpine:3.9 as ship
-RUN apk add --no-cache ca-certificates
+RUN license-check -path /go/src/github.com/openfaas/kafka-connector/ --verbose=false "Alex Ellis" "OpenFaaS Author(s)"
+RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*")
+RUN CGO_ENABLED=${CGO_ENABLED} GOOS=${TARGETOS} GOARCH=${TARGETARCH} go test -v ./...
 
-COPY --from=build /usr/bin/producer /usr/bin/producer
-WORKDIR /root/
+RUN VERSION=$(git describe --all --exact-match `git rev-parse HEAD` | grep tags | sed 's/tags\///') \
+    && GIT_COMMIT=$(git rev-list -1 HEAD) \
+    && GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=${CGO_ENABLED} go build \
+        --ldflags "-s -w \
+        -X github.com/openfaas/kafka-connector/version.GitCommit=${GIT_COMMIT}\
+        -X github.com/openfaas/kafka-connector/version.Version=${VERSION}" \
+        -a -installsuffix cgo -o kafka-connector .
 
-CMD ["/usr/bin/producer"]
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.12 as ship
+LABEL org.label-schema.license="MIT" \
+      org.label-schema.vcs-url="https://github.com/openfaas/kafka-connector" \
+      org.label-schema.vcs-type="Git" \
+      org.label-schema.name="openfaas/kafka-connector" \
+      org.label-schema.vendor="openfaas" \
+      org.label-schema.docker.schema-version="1.0"
+
+RUN apk --no-cache add \
+    ca-certificates
+
+RUN addgroup -S app \
+    && adduser -S -g app app
+
+WORKDIR /home/app
+
+ENV http_proxy      ""
+ENV https_proxy     ""
+
+COPY --from=build /go/src/github.com/openfaas/kafka-connector/kafka-connector    .
+RUN chown -R app:app ./
+
+USER app
+
+CMD ["./kafka-connector"]
