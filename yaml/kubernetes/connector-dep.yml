@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: openfaas/kafka-connector:0.3.4
+        image: ghcr.io/openfaas/kafka-connector:0.4.1
         env:
           - name: gateway_url
             value: "http://gateway.openfaas:8080"
